@@ -8,7 +8,7 @@ const stageColors = {
   Bloom: '#D4537E',
 };
 
-const sigColors = { 1: '#B4B2A9', 2: '#EF9F27', 3: '#EF9F27', 4: '#D4537E', 5: '#D4537E' };
+const stageOrder = { Seed: 1, Sprout: 2, Bud: 3, Bloom: 4 };
 
 function GrowthChart({ moments }) {
   if (!moments || moments.length === 0) return (
@@ -19,7 +19,7 @@ function GrowthChart({ moments }) {
     <div className="bg-[#FBFAF5] rounded-xl p-4 mb-6 border border-[#C5D6CC]">
       <h3 className="text-sm font-bold text-[#2D4A3A] mb-3">Growth over time</h3>
       <div className="flex items-center gap-4 py-4">
-        <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: sigColors[moments[0].significance ?? 1] }}></div>
+        <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: stageColors[moments[0].stage] ?? '#B4B2A9' }}></div>
         <div>
           <div className="text-sm font-medium text-[#2D4A3A]">{moments[0].description}</div>
           <div className="text-xs text-[#8aa394] mt-0.5">
@@ -42,28 +42,32 @@ function GrowthChart({ moments }) {
     return 20 + (diff / totalDays) * (W - 40);
   }
 
-  let cumulative = 0;
-  const pts = moments.map(m => {
-    cumulative += (m.significance ?? 1);
-    return { x: xPos(m.created_at), y: cumulative, sig: m.significance ?? 1, stage: m.stage };
-  });
-  const maxY = pts[pts.length - 1].y || 1;
+  const pts = moments.map(m => ({
+    x: xPos(m.created_at),
+    y: stageOrder[m.stage] ?? 1,
+    stage: m.stage,
+    color: stageColors[m.stage] ?? '#B4B2A9',
+  }));
 
-  function yPos(val) { return H - 15 - (val / maxY) * (H - 30); }
+  const maxY = 4;
+  function yPos(val) { return H - 15 - ((val - 1) / (maxY - 1)) * (H - 30); }
 
   const areaPath = `M${pts[0].x},${H} ` + pts.map(p => `L${p.x},${yPos(p.y)}`).join(' ') + ` L${pts[pts.length - 1].x},${H} Z`;
   const linePath = `M${pts[0].x},${yPos(pts[0].y)} ` + pts.slice(1).map(p => `L${p.x},${yPos(p.y)}`).join(' ');
 
   return (
     <div className="bg-[#FBFAF5] rounded-xl p-4 mb-6 border border-[#C5D6CC]">
-      <h3 className="text-sm font-bold text-[#2D4A3A] mb-3">Growth over time — significance and stage</h3>
+      <h3 className="text-sm font-bold text-[#2D4A3A] mb-3">Growth over time</h3>
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ height: 140 }}>
         <path d={areaPath} fill="rgba(29,158,117,0.08)" />
         <path d={linePath} fill="none" stroke="#1D9E75" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        {['Seed','Sprout','Bud','Bloom'].map((s, i) => (
+          <text key={s} x={W - 8} y={yPos(i + 1) + 4} fontSize="9" fill="#8aa394" textAnchor="end">{s}</text>
+        ))}
         {pts.map((p, i) => (
           <g key={i}>
-            <circle cx={p.x} cy={yPos(p.y)} r={p.sig >= 4 ? 8 : p.sig === 3 ? 6 : 5} fill="white" />
-            <circle cx={p.x} cy={yPos(p.y)} r={p.sig >= 4 ? 6 : p.sig === 3 ? 4.5 : 3.5} fill={sigColors[p.sig]} />
+            <circle cx={p.x} cy={yPos(p.y)} r={7} fill="white" />
+            <circle cx={p.x} cy={yPos(p.y)} r={5} fill={p.color} />
           </g>
         ))}
       </svg>
@@ -72,10 +76,12 @@ function GrowthChart({ moments }) {
         <span>{new Date(moments[moments.length - 1].created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
       </div>
       <div className="flex gap-4 mt-2 flex-wrap">
-        <span className="flex items-center gap-1 text-xs text-[#6b8275]"><span style={{ width: 10, height: 3, background: '#1D9E75', display: 'inline-block', borderRadius: 2 }}></span>Cumulative growth</span>
-        <span className="flex items-center gap-1 text-xs text-[#6b8275]"><span style={{ width: 8, height: 8, background: '#D4537E', borderRadius: '50%', display: 'inline-block' }}></span>High</span>
-        <span className="flex items-center gap-1 text-xs text-[#6b8275]"><span style={{ width: 8, height: 8, background: '#EF9F27', borderRadius: '50%', display: 'inline-block' }}></span>Medium</span>
-        <span className="flex items-center gap-1 text-xs text-[#6b8275]"><span style={{ width: 8, height: 8, background: '#B4B2A9', borderRadius: '50%', display: 'inline-block' }}></span>Low</span>
+        {Object.entries(stageColors).map(([stage, color]) => (
+          <span key={stage} className="flex items-center gap-1 text-xs text-[#6b8275]">
+            <span style={{ width: 8, height: 8, background: color, borderRadius: '50%', display: 'inline-block' }}></span>
+            {stage}
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -94,9 +100,9 @@ function MomentTimeline({ moments }) {
       {reversed.map((m, i) => {
         const isLast = i === reversed.length - 1;
         const dotColor = stageColors[m.stage] ?? '#B4B2A9';
-        const sigLabel = m.significance >= 4 ? 'High' : m.significance === 3 ? 'Medium' : 'Low';
-        const sigBg = m.significance >= 4 ? 'bg-[#cdddd2] text-[#2D4A3A]' : m.significance === 3 ? 'bg-[#dde7e2] text-[#4a6553]' : 'bg-[#e7ece6] text-[#6b8275]';
         const date = new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const typeBg = m.type === 'accomplishment' ? 'bg-teal-100 text-teal-700' : 'bg-amber-100 text-amber-700';
+        const typeLabel = m.type === 'accomplishment' ? '🏆 Accomplishment' : '⚡ Challenge';
 
         return (
           <div key={m.id} className="flex gap-0 items-start">
@@ -111,7 +117,7 @@ function MomentTimeline({ moments }) {
               <div className="text-sm font-medium text-[#2D4A3A] leading-snug">{m.description}</div>
               {m.reflection && <div className="text-xs text-[#6b8275] italic mt-1 leading-relaxed">{m.reflection}</div>}
               <div className="flex gap-1 mt-1.5 flex-wrap">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${sigBg}`}>{sigLabel} significance</span>
+                {m.type && <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${typeBg}`}>{typeLabel}</span>}
                 {m.stage && <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#4F6F5E] text-white">{m.stage}</span>}
               </div>
             </div>

@@ -1,23 +1,5 @@
-import { useState } from 'react';
-
-const skills = [
-  { name: 'React', category: 'Technical', stage: 'Bud', moments: 4 },
-  { name: 'Debugging', category: 'Technical', stage: 'Bloom', moments: 9 },
-  { name: 'API Integration', category: 'Technical', stage: 'Sprout', moments: 2 },
-  { name: 'Git', category: 'Technical', stage: 'Seed', moments: 1 },
-  { name: 'Presenting', category: 'Communication', stage: 'Bud', moments: 3 },
-  { name: 'Teamwork', category: 'Communication', stage: 'Bloom', moments: 7 },
-  { name: 'Documentation', category: 'Communication', stage: 'Sprout', moments: 2 },
-  { name: 'Feedback', category: 'Communication', stage: 'Seed', moments: 0 },
-  { name: 'UI Design', category: 'Creativity', stage: 'Bloom', moments: 8 },
-  { name: 'Storytelling', category: 'Creativity', stage: 'Bud', moments: 3 },
-  { name: 'Experimentation', category: 'Creativity', stage: 'Seed', moments: 1 },
-  { name: 'Ideation', category: 'Creativity', stage: 'Sprout', moments: 2 },
-  { name: 'Fitness', category: 'Life & Wellbeing', stage: 'Bud', moments: 3 },
-  { name: 'Rest', category: 'Life & Wellbeing', stage: 'Sprout', moments: 2 },
-  { name: 'Relationships', category: 'Life & Wellbeing', stage: 'Bloom', moments: 5 },
-  { name: 'Hobbies', category: 'Life & Wellbeing', stage: 'Seed', moments: 1 },
-];
+import { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
 const stageStyle = {
   Bloom: 'bg-pink-100 text-pink-700',
@@ -28,9 +10,56 @@ const stageStyle = {
 
 export default function TopStatsBar({ beeDancing }) {
   const [showGlance, setShowGlance] = useState(false);
+  const [projectsDone, setProjectsDone] = useState(0);
+  const [momentsLogged, setMomentsLogged] = useState(0);
+  const [skills, setSkills] = useState([]);
+  const [skillMomentCounts, setSkillMomentCounts] = useState({});
 
-  const projectsDone = 3;
-  const momentsLogged = 47;
+  useEffect(() => {
+    const fetchAll = async () => {
+      const { data: projects } = await supabase
+        .from('projects')
+        .select('id, status, progress');
+      if (projects) {
+        setProjectsDone(projects.filter(p => p.progress >= 100 || p.status === 'Completed').length);
+      }
+
+      const { data: moments } = await supabase
+        .from('moments')
+        .select('id, skill, stage, category');
+      if (moments) {
+        setMomentsLogged(moments.length);
+        const counts = {};
+        moments.forEach(m => {
+          if (m.skill) counts[m.skill] = (counts[m.skill] ?? 0) + 1;
+        });
+        setSkillMomentCounts(counts);
+      }
+
+      const { data: skillData } = await supabase
+        .from('skills')
+        .select('name, category')
+        .order('created_at', { ascending: true });
+
+      if (skillData && moments) {
+        const latestStage = {};
+        moments
+          .filter(m => m.skill && m.stage)
+          .forEach(m => { latestStage[m.skill] = m.stage; });
+
+        setSkills(skillData.map(s => ({
+          name: s.name,
+          category: s.category,
+          stage: latestStage[s.name] ?? 'Seed',
+          moments: counts[s.name] ?? 0,
+        })));
+      }
+    };
+
+    const counts = {};
+    fetchAll();
+  }, []);
+
   const skillsGrown = skills.filter(s => s.stage !== 'Seed').length;
   const totalSkills = skills.length;
 
@@ -102,30 +131,34 @@ export default function TopStatsBar({ beeDancing }) {
             </div>
 
             <h3 className="font-semibold text-slate-700 mb-3">All skills</h3>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left py-2 text-slate-500 font-medium">Skill</th>
-                  <th className="text-left py-2 text-slate-500 font-medium">Category</th>
-                  <th className="text-left py-2 text-slate-500 font-medium">Stage</th>
-                  <th className="text-left py-2 text-slate-500 font-medium">Moments</th>
-                </tr>
-              </thead>
-              <tbody>
-                {skills.map(skill => (
-                  <tr key={skill.name} className="border-b border-slate-100 hover:bg-slate-50">
-                    <td className="py-2 font-medium text-[#2D4A3A]">{skill.name}</td>
-                    <td className="py-2 text-slate-500">{skill.category}</td>
-                    <td className="py-2">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${stageStyle[skill.stage]}`}>
-                        {skill.stage}
-                      </span>
-                    </td>
-                    <td className="py-2 text-slate-500">{skill.moments}</td>
+            {skills.length === 0 ? (
+              <div className="text-sm text-slate-400 py-4 text-center">No skills added yet.</div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left py-2 text-slate-500 font-medium">Skill</th>
+                    <th className="text-left py-2 text-slate-500 font-medium">Category</th>
+                    <th className="text-left py-2 text-slate-500 font-medium">Stage</th>
+                    <th className="text-left py-2 text-slate-500 font-medium">Moments</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {skills.map(skill => (
+                    <tr key={skill.name} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="py-2 font-medium text-[#2D4A3A]">{skill.name}</td>
+                      <td className="py-2 text-slate-500">{skill.category}</td>
+                      <td className="py-2">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${stageStyle[skill.stage] ?? 'bg-stone-100 text-stone-500'}`}>
+                          {skill.stage}
+                        </span>
+                      </td>
+                      <td className="py-2 text-slate-500">{skill.moments}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       )}
