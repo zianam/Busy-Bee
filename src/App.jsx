@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import MomentModal from './MomentModal';
+import SkillHistory from './SkillHistory';
 
 function App() {
   const [showMomentModal, setShowMomentModal] = useState(false);
   const [beeDancing, setBeeDancing] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState(null);
 
   const handleMomentConfirm = (momentData) => {
     // Trigger bee dance animation
@@ -132,29 +134,29 @@ function App() {
             </h2>
             <div className="flex justify-around">
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('React')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-3xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">React</span>
                 <span className="text-xs text-gray-400">Bud</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Debugging')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-4xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Debugging</span>
                 <span className="text-xs text-gray-400">Bloom</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('API Integration')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-2xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">API Integration</span>
                 <span className="text-xs text-gray-400">Sprout</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Git')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-lg">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Git</span>
                 <span className="text-xs text-gray-400">Seed</span>
-              </div>
+              </button>
 
             </div>
           </div>
@@ -166,23 +168,23 @@ function App() {
             </h2>
             <div className="flex justify-around">
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Presenting')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-3xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Presenting</span>
                 <span className="text-xs text-gray-400">Bud</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Teamwork')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-4xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Teamwork</span>
                 <span className="text-xs text-gray-400">Bloom</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Documentation')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-2xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Documentation</span>
                 <span className="text-xs text-gray-400">Sprout</span>
-              </div>
+              </button>
 
             </div>
           </div>
@@ -194,23 +196,23 @@ function App() {
             </h2>
             <div className="flex justify-around">
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('UI Design')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-4xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">UI Design</span>
                 <span className="text-xs text-gray-400">Bloom</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Storytelling')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-3xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Storytelling</span>
                 <span className="text-xs text-gray-400">Bud</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Experimentation')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-lg">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Experimentation</span>
                 <span className="text-xs text-gray-400">Seed</span>
-              </div>
+              </button>
 
             </div>
           </div>
@@ -222,29 +224,29 @@ function App() {
             </h2>
             <div className="flex justify-around">
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Fitness')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-3xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Fitness</span>
                 <span className="text-xs text-gray-400">Bud</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Rest')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-2xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Rest</span>
                 <span className="text-xs text-gray-400">Sprout</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Relationships')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-4xl">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Relationships</span>
                 <span className="text-xs text-gray-400">Bloom</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center gap-1">
+              <button onClick={() => setSelectedSkill('Hobbies')} className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-75 transition">
                 <span className="text-lg">🌸</span>
                 <span className="text-sm font-medium text-gray-800">Hobbies</span>
                 <span className="text-xs text-gray-400">Seed</span>
-              </div>
+              </button>
 
             </div>
           </div>
@@ -378,6 +380,9 @@ function App() {
 
       {/* Moment Modal */}
       {showMomentModal && <MomentModal onClose={() => setShowMomentModal(false)} onConfirm={handleMomentConfirm} />}
+
+      {/* Skill History Modal */}
+      {selectedSkill && <SkillHistory skill={selectedSkill} onClose={() => setSelectedSkill(null)} />}
 
     </div>
   )
