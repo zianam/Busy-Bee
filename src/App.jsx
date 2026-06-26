@@ -1,4 +1,24 @@
+import { useState } from 'react';
+import MomentModal from './MomentModal';
+import SkillHistory from './SkillHistory';
+
 function App() {
+  const [showMomentModal, setShowMomentModal] = useState(false);
+  const [beeDancing, setBeeDancing] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState(null);
+
+  const handleMomentConfirm = (momentData) => {
+    // Trigger bee dance animation
+    setBeeDancing(true);
+    setTimeout(() => setBeeDancing(false), 1500);
+    
+    // Here you would save the moment data
+    console.log('Moment saved:', momentData);
+    
+    // Close modal
+    setShowMomentModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#DCE8E0]">
       <div className="w-full px-6 py-4">
@@ -8,7 +28,7 @@ function App() {
 
         {/* Avatar + name */}
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-xl bg-amber-300 flex items-center justify-center overflow-hidden shrink-0">
+          <div className={`w-14 h-14 rounded-xl bg-amber-300 flex items-center justify-center overflow-hidden shrink-0 transition-transform ${beeDancing ? 'animate-bounce' : ''}`}>
             <img src="/bee.png" alt="" className="w-14 h-14 object-contain" />
           </div>
           <div>
@@ -120,29 +140,29 @@ function App() {
             </h2>
             <div className="grid grid-flow-col auto-cols-fr gap-2 justify-items-center pt-4">
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('React')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-bud.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">React</span>
                 <span className="text-xs text-[#8aa394]">Bud</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Debugging')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-bloom-purple.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Debugging</span>
                 <span className="text-xs text-[#8aa394]">Bloom</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('API Integration')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-sprout.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">API Integration</span>
                 <span className="text-xs text-[#8aa394]">Sprout</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Git')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-seed.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Git</span>
                 <span className="text-xs text-[#8aa394]">Seed</span>
-              </div>
+              </button>
 
             </div>
           </div>
@@ -154,29 +174,29 @@ function App() {
             </h2>
             <div className="grid grid-flow-col auto-cols-fr gap-2 justify-items-center pt-4">
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Presenting')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-bud.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Presenting</span>
                 <span className="text-xs text-[#8aa394]">Bud</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Teamwork')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-bloom-purple.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Teamwork</span>
                 <span className="text-xs text-[#8aa394]">Bloom</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Documentation')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-sprout.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Documentation</span>
                 <span className="text-xs text-[#8aa394]">Sprout</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Feedback')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-seed.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Feedback</span>
                 <span className="text-xs text-[#8aa394]">Seed</span>
-              </div>
+              </button>
 
             </div>
           </div>
@@ -188,29 +208,29 @@ function App() {
             </h2>
             <div className="grid grid-flow-col auto-cols-fr gap-2 justify-items-center pt-4">
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('UI Design')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-bloom-pink.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">UI Design</span>
                 <span className="text-xs text-[#8aa394]">Bloom</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Storytelling')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-bud.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Storytelling</span>
                 <span className="text-xs text-[#8aa394]">Bud</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Experimentation')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-seed.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Experimentation</span>
                 <span className="text-xs text-[#8aa394]">Seed</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Ideation')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-sprout.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Ideation</span>
                 <span className="text-xs text-[#8aa394]">Sprout</span>
-              </div>
+              </button>
 
             </div>
           </div>
@@ -222,29 +242,29 @@ function App() {
             </h2>
             <div className="grid grid-flow-col auto-cols-fr gap-2 justify-items-center pt-4">
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Fitness')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-bud.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Fitness</span>
                 <span className="text-xs text-[#8aa394]">Bud</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Rest')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-sprout.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Rest</span>
                 <span className="text-xs text-[#8aa394]">Sprout</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Relationships')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-bloom-red.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Relationships</span>
                 <span className="text-xs text-[#8aa394]">Bloom</span>
-              </div>
+              </button>
 
-              <div className="flex flex-col items-center text-center w-full gap-0.5">
+              <button type="button" onClick={() => setSelectedSkill('Hobbies')} className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition">
                 <img src="/flower-seed.png" alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
                 <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">Hobbies</span>
                 <span className="text-xs text-[#8aa394]">Seed</span>
-              </div>
+              </button>
 
             </div>
           </div>
@@ -369,11 +389,18 @@ function App() {
 
       {/* ADD MOMENT BUTTON */}
       <button
+        onClick={() => setShowMomentModal(true)}
         className="fixed bottom-8 right-8 flex items-center gap-2 rounded-full bg-rose-500 text-white font-bold px-6 py-4 shadow-lg shadow-rose-500/50 hover:bg-rose-600 transition"
       >
         <span className="text-2xl leading-none">+</span>
         <span className="text-sm tracking-wide">ADD MOMENT</span>
       </button>
+
+      {/* Moment Modal */}
+      {showMomentModal && <MomentModal onClose={() => setShowMomentModal(false)} onConfirm={handleMomentConfirm} />}
+
+      {/* Skill History Modal */}
+      {selectedSkill && <SkillHistory skill={selectedSkill} onClose={() => setSelectedSkill(null)} />}
 
       </div>
     </div>
