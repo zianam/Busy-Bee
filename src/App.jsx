@@ -1,21 +1,16 @@
 import { useState } from 'react';
 import { defaultBusyBeeData } from './data/busyBeeData';
-import TopStatsBar from './components/TopStatsBar';
-import ProjectsPanel from './components/ProjectsPanel';
-import SkillCard from './components/skillCard';
-import GrowthKey from './components/GrowthKey';
-import TodaysFocus from './components/TodaysFocus';
-import BalanceCheck from './components/BalanceCheck';
 import MomentModal from './components/MomentModal';
 import SkillHistory from './components/SkillHistory';
-import AddMomentBtn from './components/AddMomentBtn';
+import ProjectDetailPage from './components/ProjectDetailPage';
 
-const { profile, skillCategories, projectCategories, microWins, todaysFocus } = defaultBusyBeeData;
+const { profile } = defaultBusyBeeData;
 
 function App() {
   const [showMomentModal, setShowMomentModal] = useState(false);
   const [beeDancing, setBeeDancing] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const handleMomentConfirm = (momentData) => {
     setBeeDancing(true);
@@ -23,6 +18,21 @@ function App() {
     console.log('Moment saved:', momentData);
     setShowMomentModal(false);
   };
+
+  if (selectedProject) {
+    return (
+      <ProjectDetailPage
+        project={selectedProject}
+        profile={{
+          displayName: "Bloom",
+          subtitle: "Proof-of-Skill Ledger",
+          userName: profile.userName,
+          season: profile.season,
+        }}
+        onBack={() => setSelectedProject(null)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#DCE8E0]">
@@ -94,7 +104,18 @@ function App() {
           <div className="flex flex-col gap-3">
 
             {/* Card 1: Project Atlas (complete) */}
-            <div className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3">
+            <button
+              type="button"
+              onClick={() =>
+                setSelectedProject({
+                  id: "project-atlas",
+                  name: "Project Atlas",
+                  houseType: "cottage",
+                  stage: 100,
+                })
+              }
+              className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4F6F5E]"
+            >
               {/* Completed badge */}
               <div className="absolute top-6 right-6 w-6 h-6 rounded-full bg-[#6f9580] flex items-center justify-center text-white text-xs shadow">
                 ✓
@@ -110,10 +131,25 @@ function App() {
                 </div>
                 <span className="text-xs font-semibold text-[#4a6553]">100%</span>
               </div>
-            </div>
+            </button>
 
             {/* Card 2: Portfolio Refresh */}
-            <div className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3">
+            <button
+              type="button"
+              onClick={() =>
+                setSelectedProject({
+                  id: "portfolio-refresh",
+                  name: "Portfolio Refresh",
+                  houseType: "studio",
+                  stage: 65,
+                  category: "Portfolio Site",
+                  team: "1 member",
+                  description:
+                    "Portfolio Refresh is a personal site update focused on stronger case studies, clearer visual polish, and a smoother presentation flow.",
+                })
+              }
+              className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4F6F5E]"
+            >
               {/* Image placeholder */}
               <div className="rounded-xl bg-[#ECE9E0] flex items-center justify-center p-2">
                 <img src="/house-wip.png" alt="" className="object-contain" style={{ width: '140px', height: '100px' }} />
@@ -125,7 +161,7 @@ function App() {
                 </div>
                 <span className="text-xs font-semibold text-[#4a6553]">65%</span>
               </div>
-            </div>
+            </button>
 
           </div>
 
