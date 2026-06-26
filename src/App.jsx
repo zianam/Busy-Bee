@@ -7,34 +7,9 @@ import SkillHistory from './components/SkillHistory';
 import ProjectDetailPage from './components/ProjectDetailPage';
 import LoadingScreen from './components/LoadingScreen';
 import TopStatsBar from './components/TopStatsBar';
-import BeeCompanion from './components/BeeCompanion';
 import BalanceCheck from './components/BalanceCheck';
-import {
-  Home, Sprout, Scale, MessageCircle, Palette, Leaf,
-  Atom, Bug, Plug, GitBranch, Presentation, Users, FileText, MessageSquare,
-  Layers, BookOpen, FlaskConical, Lightbulb, Dumbbell, Moon, Heart, Smile,
-} from 'lucide-react';
 
 const { profile } = defaultBusyBeeData;
-
-const SKILL_ICONS = {
-  'React': Atom,
-  'Debugging': Bug,
-  'API Integration': Plug,
-  'Git': GitBranch,
-  'Presenting': Presentation,
-  'Teamwork': Users,
-  'Documentation': FileText,
-  'Feedback': MessageSquare,
-  'UI Design': Layers,
-  'Storytelling': BookOpen,
-  'Experimentation': FlaskConical,
-  'Ideation': Lightbulb,
-  'Fitness': Dumbbell,
-  'Rest': Moon,
-  'Relationships': Heart,
-  'Hobbies': Smile,
-};
 
 const STAGE_IMAGES = {
   Seed: 'flower-seed.png',
@@ -45,9 +20,9 @@ const STAGE_IMAGES = {
 
 const CATEGORY_META = [
   { title: 'TECHNICAL SKILLS', label: '</>', mono: true, bg: 'bg-[#EAF0F0]' },
-  { title: 'COMMUNICATION', Icon: MessageCircle, bg: 'bg-[#EAF0F0]' },
-  { title: 'CREATIVITY', Icon: Palette, bg: 'bg-[#F4ECEC]' },
-  { title: 'LIFE & WELLBEING', Icon: Leaf, bg: 'bg-[#EAF0EA]' },
+  { title: 'COMMUNICATION', label: '💬', bg: 'bg-[#EAF0F0]' },
+  { title: 'CREATIVITY', label: '🎨', bg: 'bg-[#F4ECEC]' },
+  { title: 'LIFE & WELLBEING', label: '🌳', bg: 'bg-[#EAF0EA]' },
 ];
 
 function ProjectPickerModal({ skillName, projects, onSelect, onClose }) {
@@ -266,9 +241,8 @@ function AddProjectModal({ onClose, onCreated }) {
 }
 
 function App() {
-const [projects, setProjects] = useState([]);
-const [showAddProject, setShowAddProject] = useState(false);
-const [showAllProjects, setShowAllProjects] = useState(false);
+  const [showAddProject, setShowAddProject] = useState(false);
+  const [showAllProjects, setShowAllProjects] = useState(false);
   const [projectPicker, setProjectPicker] = useState(null);
   const [showMomentModal, setShowMomentModal] = useState(false);
   const [beeDancing, setBeeDancing] = useState(false);
@@ -281,17 +255,6 @@ const [showAllProjects, setShowAllProjects] = useState(false);
   const [showAddSkill, setShowAddSkill] = useState(null);
   const [newSkillName, setNewSkillName] = useState('');
 
-useEffect(() => {
-  const fetchProjects = async () => {
-    const { data } = await supabase
-      .from('projects')
-      .select('*')
-      .order('created_at', { ascending: true });
-    if (data) setProjects(data);
-  };
-  fetchProjects();
-}, [refreshTrigger]);
-  
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 6500);
     return () => clearTimeout(timer);
@@ -401,10 +364,7 @@ useEffect(() => {
           userName: profile.userName,
           season: profile.season,
         }}
-        onBack={() => {
-  setSelectedProject(null);
-  setRefreshTrigger(prev => prev + 1);
-}}
+        onBack={() => setSelectedProject(null)}
       />
     );
   }
@@ -415,59 +375,60 @@ useEffect(() => {
 
       <div className="w-full px-6 pt-4 pb-28">
 
-       <TopStatsBar beeDancing={beeDancing} refreshTrigger={refreshTrigger} />
+        <TopStatsBar beeDancing={beeDancing} />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mt-3">
 
           <div className="lg:col-span-1 bg-[#F5F3EC] rounded-2xl p-3">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Home size={16} color="#2D4A3A" />
-                <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A]">PROJECTS</h2>
-              </div>
+  <div className="flex items-center gap-2">
+    <span className="text-lg">🏡</span>
+    <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A]">PROJECTS</h2>
+  </div>
+  <button
+    onClick={() => setShowAddProject(true)}
+    className="text-xs text-[#4F6F5E] hover:underline font-medium"
+  >
+    + add
+  </button>
+</div>
+
+            <div className="flex flex-col gap-3">
               <button
-                onClick={() => setShowAddProject(true)}
-                className="text-xs text-[#4F6F5E] hover:underline font-medium"
+                type="button"
+                onClick={() => setSelectedProject({ id: "a1b2c3d4-0000-0000-0000-000000000001", name: "Project Atlas", stage: 100 })}
+                className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
               >
-                + add
+                <div className="absolute top-6 right-6 w-6 h-6 rounded-full bg-[#6f9580] flex items-center justify-center text-white text-xs shadow">✓</div>
+                <div className="rounded-xl bg-[#ECE9E0] flex items-center justify-center p-2">
+                  <img src="/house-done.png" alt="" className="object-contain" style={{ width: '140px', height: '100px' }} />
+                </div>
+                <div className="mt-2 font-semibold text-[#2D4A3A]">Project Atlas</div>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-2 bg-[#cdd8cf] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#6f9580]" style={{ width: "100%" }}></div>
+                  </div>
+                  <span className="text-xs font-semibold text-[#4a6553]">100%</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedProject({ id: "a1b2c3d4-0000-0000-0000-000000000002", name: "Portfolio Refresh", stage: 65, description: "Portfolio Refresh is a personal site update focused on stronger case studies, clearer visual polish, and a smoother presentation flow." })}
+                className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                <div className="rounded-xl bg-[#ECE9E0] flex items-center justify-center p-2">
+                  <img src="/house-wip.png" alt="" className="object-contain" style={{ width: '140px', height: '100px' }} />
+                </div>
+                <div className="mt-2 font-semibold text-[#2D4A3A]">Portfolio Refresh</div>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-2 bg-[#cdd8cf] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#7a9a87]" style={{ width: "65%" }}></div>
+                  </div>
+                  <span className="text-xs font-semibold text-[#4a6553]">65%</span>
+                </div>
               </button>
             </div>
-
-          <div className="flex flex-col gap-3">
-  {projects.map(p => (
-    <button
-      key={p.id}
-      type="button"
-      onClick={() => setSelectedProject(p)}
-      className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
-    >
-      {p.progress >= 100 && (
-        <div className="absolute top-6 right-6 w-6 h-6 rounded-full bg-[#6f9580] flex items-center justify-center text-white text-xs shadow">✓</div>
-      )}
-      <div className="rounded-xl bg-[#ECE9E0] flex items-center justify-center p-2">
-        <img
-          src={p.progress >= 100 ? '/house-done.png' : '/house-wip.png'}
-          alt=""
-          className="object-contain"
-          style={{ width: '140px', height: '100px' }}
-        />
-      </div>
-      <div className="mt-2 font-semibold text-[#2D4A3A]">{p.name}</div>
-      <div className="mt-2 flex items-center gap-2">
-        <div className="flex-1 h-2 bg-[#cdd8cf] rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full"
-            style={{
-              width: `${p.progress ?? 0}%`,
-              background: p.progress >= 100 ? '#6f9580' : '#7a9a87'
-            }}
-          ></div>
-        </div>
-        <span className="text-xs font-semibold text-[#4a6553]">{p.progress ?? 0}%</span>
-      </div>
-    </button>
-  ))}
-</div>
 
             <button onClick={() => setShowAllProjects(true)} className="w-full mt-3 rounded-lg border border-[#b9ccc0] text-[#4F6F5E] text-sm py-2 hover:bg-[#EAF0EA] transition">
   See all projects
@@ -478,9 +439,8 @@ useEffect(() => {
             {skillsData.map(cat => (
               <div key={cat.title} className={`${cat.bg} rounded-2xl p-3 shadow-sm`}>
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A] flex items-center gap-1.5">
-                    {cat.mono ? <span className="font-mono">{cat.label}</span> : <cat.Icon size={16} color="#2D4A3A" />}
-                    {cat.title}
+                  <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A]">
+                    <span className={cat.mono ? 'font-mono' : ''}>{cat.label}</span> {cat.title}
                   </h2>
                   <button onClick={() => setShowAddSkill(cat.title)} className="text-xs text-[#4F6F5E] hover:underline font-medium">
                     + add
@@ -510,7 +470,6 @@ useEffect(() => {
                     cat.skills.map(name => {
                       const stage = skillStages[name] ?? 'Seed';
                       const img = STAGE_IMAGES[stage] ?? 'flower-seed.png';
-                      const SkillIcon = SKILL_ICONS[name];
                       return (
                         <div key={name} className="flex flex-col items-center text-center w-full gap-0.5">
                           <button
@@ -519,10 +478,7 @@ useEffect(() => {
                             className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition"
                           >
                             <img src={`/${img}`} alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
-                            <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center gap-1">
-                              {SkillIcon && <SkillIcon size={14} color="#2D4A3A" className="shrink-0" />}
-                              {name}
-                            </span>
+                            <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">{name}</span>
                             <span className="text-xs text-[#8aa394]">{stage}</span>
                           </button>
                           <SkillMenu
@@ -545,11 +501,11 @@ useEffect(() => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-4">
 
           <div className="bg-[#F5F3EC] rounded-2xl shadow-sm p-6">
-            <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A] mb-2 flex items-center gap-1.5"><Sprout size={16} color="#2D4A3A" /> GROWTH KEY</h2>
+            <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A] mb-2">🌱 GROWTH KEY</h2>
             <ul className="flex flex-col gap-3 text-sm">
-              {[['/growth-seed.png','Seed','newly added skill'],['/growth-sprout.png','Sprout','one related micro-win'],['/growth-bud.png','Bud','applied in a project'],['/growth-bloom.png','Bloom','repeated evidence & reflection']].map(([img, label, desc]) => (
+              {[['🌱','Seed','newly added skill'],['🌿','Sprout','one related micro-win'],['🌷','Bud','applied in a project'],['🌸','Bloom','repeated evidence & reflection']].map(([emoji, label, desc]) => (
                 <li key={label} className="flex items-start gap-2">
-                  <img src={img} alt="" className="w-8 h-8 object-contain inline" />
+                  <span className="text-base leading-none">{emoji}</span>
                   <span><span className="font-semibold text-[#2D4A3A]">{label}</span> <span className="text-[#6b8275]">— {desc}</span></span>
                 </li>
               ))}
@@ -595,15 +551,7 @@ useEffect(() => {
   />
 )}
 
-{showAddProject && (
-  <AddProjectModal
-    onClose={() => setShowAddProject(false)}
-    onCreated={(newProject) => {
-      setShowAddProject(false);
-      setSelectedProject(newProject);
-    }}
-  />
-)}
+
     </div>
   );
 }
