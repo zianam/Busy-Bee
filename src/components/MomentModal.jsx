@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { supabase } from '../supabaseClient';
 
-const SKILLS = {
-  'Technical': ['React', 'Debugging', 'API Integration', 'Git'],
-  'Communication': ['Presenting', 'Teamwork', 'Documentation'],
-  'Creativity': ['UI Design', 'Storytelling', 'Experimentation'],
-  'Life & Wellbeing': ['Fitness', 'Rest', 'Relationships', 'Hobbies']
+const CATEGORY_MAP = {
+  'Technical': 'TECHNICAL SKILLS',
+  'Communication': 'COMMUNICATION',
+  'Creativity': 'CREATIVITY',
+  'Life & Wellbeing': 'LIFE & WELLBEING',
 };
 
 const FLOWERS = {
@@ -30,6 +30,25 @@ export default function MomentModal({ onClose, onConfirm }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [skillsByCategory, setSkillsByCategory] = useState({});
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      const { data, error } = await supabase
+        .from('skills')
+        .select('name, category')
+        .order('created_at', { ascending: true });
+
+      if (!error && data) {
+        const map = {};
+        Object.entries(CATEGORY_MAP).forEach(([short, full]) => {
+          map[short] = data.filter(s => s.category === full).map(s => s.name);
+        });
+        setSkillsByCategory(map);
+      }
+    };
+    fetchSkills();
+  }, []);
 
   const handleAnswerChange = (field, value) => {
     setAnswers(prev => ({ ...prev, [field]: value }));
@@ -43,7 +62,7 @@ export default function MomentModal({ onClose, onConfirm }) {
     setLoading(true);
     try {
       const prompt = `Generate a one-line encouraging reflection for someone who: ${answers.action}. They connected it to the ${answers.skill || answers.category} skill category. Significance level: ${answers.significance}/5. Make it specific, positive, and mention if they're at a Seed, Sprout, Bud, or Bloom level of mastery. Keep it under 15 words.`;
-      const ai = new GoogleGenAI({});
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const interaction = await ai.interactions.create({
         model: "gemini-3.5-flash",
         input: prompt,
@@ -68,7 +87,7 @@ export default function MomentModal({ onClose, onConfirm }) {
         .from('moments')
         .insert({
           skill: answers.skill,
-          category: answers.category,
+          category: CATEGORY_MAP[answers.category] ?? answers.category,
           description: answers.action,
           significance: answers.significance,
           reflection: reflection,
@@ -155,17 +174,21 @@ export default function MomentModal({ onClose, onConfirm }) {
                 {selectedCategory && (
                   <div className="mt-4">
                     <label className="block text-sm font-semibold text-[#6b8275] mb-3">Select specific skill:</label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {SKILLS[selectedCategory].map(skill => (
-                        <button
-                          key={skill}
-                          onClick={() => handleAnswerChange('skill', skill)}
-                          className={`px-4 py-3 rounded-xl text-base font-medium transition border ${answers.skill === skill ? 'bg-[#4F6F5E] text-[#F5F3EC] border-[#4F6F5E]' : 'bg-white text-[#2D4A3A] border-[#C5D6CC] hover:bg-[#EAF0EA]'}`}
-                        >
-                          {skill}
-                        </button>
-                      ))}
-                    </div>
+                    {skillsByCategory[selectedCategory]?.length > 0 ? (
+                      <div className="grid grid-cols-3 gap-3">
+                        {skillsByCategory[selectedCategory].map(skill => (
+                          <button
+                            key={skill}
+                            onClick={() => handleAnswerChange('skill', skill)}
+                            className={`px-4 py-3 rounded-xl text-base font-medium transition border ${answers.skill === skill ? 'bg-[#4F6F5E] text-[#F5F3EC] border-[#4F6F5E]' : 'bg-white text-[#2D4A3A] border-[#C5D6CC] hover:bg-[#EAF0EA]'}`}
+                          >
+                            {skill}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-[#8aa394]">No skills in this category yet — add some from the dashboard.</div>
+                    )}
                   </div>
                 )}
               </div>

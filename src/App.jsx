@@ -6,7 +6,7 @@ import TodaysMoments from './components/TodaysMoments';
 import SkillHistory from './components/SkillHistory';
 import ProjectDetailPage from './components/ProjectDetailPage';
 import LoadingScreen from './components/LoadingScreen';
-import TopStatsBar from './components/TopStatsBar';
+import TopStatsBar from './components/TopStatsBar';import BeeCompanion from './components/BeeCompanion';
 
 const { profile } = defaultBusyBeeData;
 
@@ -17,23 +17,11 @@ const STAGE_IMAGES = {
   Bloom: 'flower-bloom-pink.png',
 };
 
-const SKILLS_DATA = [
-  {
-    title: 'TECHNICAL SKILLS', label: '</>', mono: true, bg: 'bg-[#EAF0F0]',
-    skills: ['React', 'Debugging', 'API Integration', 'Git'],
-  },
-  {
-    title: 'COMMUNICATION', label: '💬', bg: 'bg-[#EAF0F0]',
-    skills: ['Presenting', 'Teamwork', 'Documentation', 'Feedback'],
-  },
-  {
-    title: 'CREATIVITY', label: '🎨', bg: 'bg-[#F4ECEC]',
-    skills: ['UI Design', 'Storytelling', 'Experimentation', 'Ideation'],
-  },
-  {
-    title: 'LIFE & WELLBEING', label: '🌳', bg: 'bg-[#EAF0EA]',
-    skills: ['Fitness', 'Rest', 'Relationships', 'Hobbies'],
-  },
+const CATEGORY_META = [
+  { title: 'TECHNICAL SKILLS', label: '</>', mono: true, bg: 'bg-[#EAF0F0]' },
+  { title: 'COMMUNICATION', label: '💬', bg: 'bg-[#EAF0F0]' },
+  { title: 'CREATIVITY', label: '🎨', bg: 'bg-[#F4ECEC]' },
+  { title: 'LIFE & WELLBEING', label: '🌳', bg: 'bg-[#EAF0EA]' },
 ];
 
 function App() {
@@ -44,54 +32,91 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [skillStages, setSkillStages] = useState({});
+  const [skillsData, setSkillsData] = useState(CATEGORY_META.map(c => ({ ...c, skills: [] })));
+  const [showAddSkill, setShowAddSkill] = useState(null);
+  const [newSkillName, setNewSkillName] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 6500);
     return () => clearTimeout(timer);
   }, []);
 
-useEffect(() => {
-  const fetchAllMoments = async () => {
-    const { data, error } = await supabase
-      .from('moments')
-      .select('skill, stage, created_at')
-      .order('created_at', { ascending: true });
+  useEffect(() => {
+    const fetchAllMoments = async () => {
+      const { data, error } = await supabase
+        .from('moments')
+        .select('skill, stage, created_at')
+        .order('created_at', { ascending: true });
 
-    if (!error && data) {
-      const stages = {};
-      data.forEach(m => {
-        if (m.skill && m.stage) stages[m.skill] = m.stage;
-      });
-      console.log('skillStages:', stages);
-      setSkillStages(stages);
-    } else {
-      console.log('Supabase error:', error);
-    }
+      if (!error && data) {
+        const stages = {};
+        data.forEach(m => {
+          if (m.skill && m.stage) stages[m.skill] = m.stage;
+        });
+        setSkillStages(stages);
+      }
+    };
+    fetchAllMoments();
+  }, [refreshTrigger]);
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      const { data, error } = await supabase
+        .from('skills')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (!error && data) {
+        setSkillsData(CATEGORY_META.map(cat => ({
+          ...cat,
+          skills: data.filter(s => s.category === cat.title).map(s => s.name),
+        })));
+      }
+    };
+    fetchSkills();
+  }, [refreshTrigger]);
+
+  const handleMomentConfirm = () => {
+    setBeeDancing(true);
+    setTimeout(() => setBeeDancing(false), 1500);
+    setShowMomentModal(false);
+    setRefreshTrigger(prev => prev + 1);
   };
-  fetchAllMoments();
-}, [refreshTrigger]);
 
-const handleMomentConfirm = () => {
-  setBeeDancing(true);
-  setTimeout(() => setBeeDancing(false), 1500);
-  setShowMomentModal(false);
-  setRefreshTrigger(prev => prev + 1);
-};
-if (selectedProject) {
+  const handleAddSkill = async (categoryTitle) => {
+    if (!newSkillName.trim()) return;
+    const { error } = await supabase
+      .from('skills')
+      .insert({ name: newSkillName.trim(), category: categoryTitle });
+    if (!error) {
+      setSkillsData(prev => prev.map(cat =>
+        cat.title === categoryTitle
+          ? { ...cat, skills: [...cat.skills, newSkillName.trim()] }
+          : cat
+      ));
+    }
+    setNewSkillName('');
+    setShowAddSkill(null);
+  };
+
+  if (selectedProject) {
+    return (
+      <ProjectDetailPage
+        project={selectedProject}
+        profile={{
+          displayName: "Bloom",
+          subtitle: "Proof-of-Skill Ledger",
+          userName: profile.userName,
+          season: profile.season,
+        }}
+        onBack={() => setSelectedProject(null)}
+      />
+    );
+  }
+
   return (
-    <ProjectDetailPage
-      project={selectedProject}
-      profile={{
-        displayName: "Bloom",
-        subtitle: "Proof-of-Skill Ledger",
-        userName: profile.userName,
-        season: profile.season,
-      }}
-      onBack={() => setSelectedProject(null)}
-    />
-  );
-}
-  return (
+
+    
     <div className="min-h-screen bg-[#DCE8E0]">
       {loading && <LoadingScreen />}
 
@@ -100,6 +125,7 @@ if (selectedProject) {
         <TopStatsBar beeDancing={beeDancing} />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mt-3">
+
           <div className="lg:col-span-1 bg-[#F5F3EC] rounded-2xl p-3">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">🏡</span>
@@ -110,7 +136,7 @@ if (selectedProject) {
               <button
                 type="button"
                 onClick={() => setSelectedProject({ id: "project-atlas", name: "Project Atlas", houseType: "cottage", stage: 100 })}
-                className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4F6F5E]"
+                className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
               >
                 <div className="absolute top-6 right-6 w-6 h-6 rounded-full bg-[#6f9580] flex items-center justify-center text-white text-xs shadow">✓</div>
                 <div className="rounded-xl bg-[#ECE9E0] flex items-center justify-center p-2">
@@ -128,7 +154,7 @@ if (selectedProject) {
               <button
                 type="button"
                 onClick={() => setSelectedProject({ id: "portfolio-refresh", name: "Portfolio Refresh", houseType: "studio", stage: 65, category: "Portfolio Site", team: "1 member", description: "Portfolio Refresh is a personal site update focused on stronger case studies, clearer visual polish, and a smoother presentation flow." })}
-                className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4F6F5E]"
+                className="relative bg-[#F5F3EC] rounded-2xl shadow-md p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
               >
                 <div className="rounded-xl bg-[#ECE9E0] flex items-center justify-center p-2">
                   <img src="/house-wip.png" alt="" className="object-contain" style={{ width: '140px', height: '100px' }} />
@@ -149,28 +175,69 @@ if (selectedProject) {
           </div>
 
           <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {SKILLS_DATA.map(cat => (
+            {skillsData.map(cat => (
               <div key={cat.title} className={`${cat.bg} rounded-2xl p-3 shadow-sm`}>
-                <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A] mb-2">
-                  <span className={cat.mono ? 'font-mono' : ''}>{cat.label}</span> {cat.title}
-                </h2>
-                <div className="grid grid-flow-col auto-cols-fr gap-2 justify-items-center pt-4">
-                {cat.skills.map(name => {
-  const stage = skillStages[name] ?? 'Seed';
-  const img = STAGE_IMAGES[stage] ?? 'flower-seed.png';
-  return (
-    <button
-      key={name}
-      type="button"
-      onClick={() => setSelectedSkill(name)}
-      className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition"
-    >
-      <img src={`/${img}`} alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
-      <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">{name}</span>
-      <span className="text-xs text-[#8aa394]">{stage}</span>
-    </button>
-  );
-})}
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A]">
+                    <span className={cat.mono ? 'font-mono' : ''}>{cat.label}</span> {cat.title}
+                  </h2>
+                  <button
+                    onClick={() => setShowAddSkill(cat.title)}
+                    className="text-xs text-[#4F6F5E] hover:underline font-medium"
+                  >
+                    + add
+                  </button>
+                </div>
+
+                {showAddSkill === cat.title && (
+                  <div className="flex gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={newSkillName}
+                      onChange={e => setNewSkillName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddSkill(cat.title)}
+                      placeholder="Skill name..."
+                      className="flex-1 text-xs px-3 py-1.5 rounded-lg border border-[#C5D6CC] bg-white focus:outline-none focus:ring-1 focus:ring-[#4F6F5E]"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => handleAddSkill(cat.title)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#4F6F5E] text-white"
+                    >
+                      Add
+                    </button>
+                    <button
+                      onClick={() => { setShowAddSkill(null); setNewSkillName(''); }}
+                      className="text-xs px-2 py-1.5 rounded-lg border border-[#C5D6CC] text-[#6b8275]"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
+                <div className="grid grid-flow-col auto-cols-fr gap-2 justify-items-center pt-2">
+                  {cat.skills.length === 0 ? (
+                    <div className="text-xs text-[#8aa394] text-center py-4">
+                      No skills yet — add one above
+                    </div>
+                  ) : (
+                    cat.skills.map(name => {
+                      const stage = skillStages[name] ?? 'Seed';
+                      const img = STAGE_IMAGES[stage] ?? 'flower-seed.png';
+                      return (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => setSelectedSkill(name)}
+                          className="flex flex-col items-center text-center w-full gap-0.5 cursor-pointer hover:opacity-75 transition"
+                        >
+                          <img src={`/${img}`} alt="" className="object-contain mx-auto" style={{ width: '80px', height: '80px' }} />
+                          <span className="text-sm font-semibold text-[#2D4A3A] text-center leading-tight h-10 flex items-center justify-center">{name}</span>
+                          <span className="text-xs text-[#8aa394]">{stage}</span>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             ))}
