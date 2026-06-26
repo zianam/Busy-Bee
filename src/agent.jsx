@@ -34,7 +34,7 @@ export default function ChatBot({ onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md h-[600px] flex flex-col">
+      <div className="bg-white rounded-2xl shadow-xl w-screen h-screen flex flex-col">
         
         {/* Header */}
         <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white p-4 rounded-t-2xl flex justify-between items-center">
@@ -52,8 +52,8 @@ export default function ChatBot({ onClose }) {
           {messages.length === 0 && (
             <div className="text-center text-gray-400 mt-8">
               <p className="text-2xl mb-2">👋</p>
-              <p>Start chatting with AI!</p>
-              <p className="text-sm mt-2">Ask me anything about your day, get advice, or just chat.</p>
+              <p>Welcome to AI Chat!</p>
+              <p className="text-sm mt-2">Chat with AI to get insights about your moments.</p>
             </div>
           )}
           {messages.map((msg, idx) => (
