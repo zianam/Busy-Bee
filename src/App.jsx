@@ -21,7 +21,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#DCE8E0]">
-      <div className="w-full px-6 py-4">
+      <div className="w-full px-6 pt-4 pb-28">
 
       {/* TOP STATS BAR */}
       <div className="flex items-center gap-4 bg-[#4F6F5E] text-white rounded-2xl px-5 py-3">
@@ -274,12 +274,12 @@ function App() {
       </div>
 
       {/* BOTTOM ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mt-3">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-4">
 
         {/* Growth Key */}
-        <div className="bg-[#F5F3EC] rounded-2xl shadow-sm p-3">
+        <div className="bg-[#F5F3EC] rounded-2xl shadow-sm p-6">
           <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A] mb-2">🌱 GROWTH KEY</h2>
-          <ul className="flex flex-col gap-1.5 text-sm">
+          <ul className="flex flex-col gap-3 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-base leading-none">🌱</span>
               <span><span className="font-semibold text-[#2D4A3A]">Seed</span> <span className="text-[#6b8275]">— newly added skill</span></span>
@@ -300,9 +300,10 @@ function App() {
         </div>
 
         {/* Today's Focus */}
-        <div className="lg:col-span-2 bg-[#F5F3EC] rounded-2xl shadow-sm p-3">
-          <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A] mb-2">✅ TODAY'S FOCUS</h2>
-          <ul className="flex flex-col gap-2 text-sm">
+        <div className="lg:col-span-2 bg-[#F5F3EC] rounded-2xl shadow-sm p-6">
+          <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A]">✅ TODAY'S FOCUS</h2>
+          <p className="text-sm text-[#8aa394] mb-2">what you're planning to work on</p>
+          <ul className="flex flex-col gap-3 text-sm">
 
             <li className="flex items-center gap-3">
               <input type="checkbox" className="w-4 h-4 accent-[#7a9a87]" />
@@ -329,9 +330,10 @@ function App() {
         </div>
 
         {/* Balance Check */}
-        <div className="bg-[#F5F3EC] rounded-2xl shadow-sm p-3">
-          <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A] mb-2">⚖️ BALANCE CHECK</h2>
-          <div className="flex flex-col gap-2 text-sm">
+        <div className="bg-[#F5F3EC] rounded-2xl shadow-sm p-6">
+          <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A]">⚖️ BALANCE CHECK</h2>
+          <p className="text-sm text-[#8aa394] mb-2">where your attention has gone lately</p>
+          <div className="flex flex-col gap-3 text-sm">
 
             <div className="flex items-center justify-between">
               <span className="text-[#2D4A3A]">Technical</span>
@@ -390,7 +392,7 @@ function App() {
       {/* ADD MOMENT BUTTON */}
       <button
         onClick={() => setShowMomentModal(true)}
-        className="fixed bottom-8 right-8 flex items-center gap-2 rounded-full bg-rose-500 text-white font-bold px-6 py-4 shadow-lg shadow-rose-500/50 hover:bg-rose-600 transition"
+        className="fixed bottom-8 right-8 flex items-center gap-2 rounded-full bg-amber-300 text-[#2D4A3A] font-bold px-6 py-4 shadow-lg shadow-amber-300/50 hover:bg-amber-400 transition"
       >
         <span className="text-2xl leading-none">+</span>
         <span className="text-sm tracking-wide">ADD MOMENT</span>
