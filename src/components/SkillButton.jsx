@@ -1,4 +1,4 @@
-import { stageLabels } from './data/busyBeeData';
+import { stageLabels } from '../data/busyBeeData';
 
 const stageSizeClass = {
   0: 'text-lg',

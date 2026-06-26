@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { defaultBusyBeeData } from './data/busyBeeData';
-import TopStatsBar from './TopStatsBar';
-import ProjectsPanel from './ProjectsPanel';
-import SkillCard from './skillCard';
-import GrowthKey from './GrowthKey';
-import TodaysFocus from './TodaysFocus';
-import BalanceCheck from './BalanceCheck';
-import MomentModal from './MomentModal';
-import SkillHistory from './SkillHistory';
-import AddMomentBtn from './addMomentBtn';
+import TopStatsBar from './components/TopStatsBar';
+import ProjectsPanel from './components/ProjectsPanel';
+import SkillCard from './components/skillCard';
+import GrowthKey from './components/GrowthKey';
+import TodaysFocus from './components/TodaysFocus';
+import BalanceCheck from './components/BalanceCheck';
+import MomentModal from './components/MomentModal';
+import SkillHistory from './components/SkillHistory';
+import AddMomentBtn from './components/AddMomentBtn';
 
 const { profile, skillCategories, projectCategories, microWins, todaysFocus } = defaultBusyBeeData;
 

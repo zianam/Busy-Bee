@@ -1,4 +1,4 @@
-import { defaultBusyBeeData, stageLabels, stageEmojis } from './data/busyBeeData';
+import { defaultBusyBeeData, stageLabels, stageEmojis } from '../data/busyBeeData';
 
 function buildTimeline(moments) {
   const today = new Date();
