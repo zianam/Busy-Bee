@@ -77,12 +77,12 @@ export default function BalanceCheck({ refreshTrigger }) {
           Log some moments to see your balance.
         </div>
       ) : isUnbalanced ? (
-        <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+        <div className="mt-3 rounded-xl bg-[#EAF0EA] border border-[#C5D6CC] p-3 text-xs text-[#4a6553]">
           <div className="flex items-start gap-2">
             <span className="text-base leading-none">🌿</span>
             <div>
-              <span className="font-semibold">Focus your energy in {labels[least[0]]} — balance is key!</span>
-              <div className="mt-1 text-amber-700">Make sure to water all your plants.</div>
+              <span className="font-semibold text-[#2D4A3A]">Focus your energy in {labels[least[0]]} — balance is key!</span>
+              <div className="mt-1 text-[#6b8275]">Make sure to water all your plants.</div>
             </div>
           </div>
         </div>
