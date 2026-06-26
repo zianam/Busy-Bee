@@ -73,7 +73,6 @@ export default function TopStatsBar({ beeDancing }) {
           </div>
           <div>
             <div className="font-bold text-lg leading-tight">Camari</div>
-            <div className="text-xs text-[#cbddd2]">Fall 2026 · Year 1</div>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Sprout, Star, TrendingUp } from 'lucide-react';
+import Groq from "groq-sdk";
 
 const STAGE_IMAGES = {
   Seed: '/flower-seed.png',
@@ -51,6 +52,68 @@ function SkillPill({ children }) {
     </span>
   );
 }
+function SuggestSkillsPopup({ suggestions, onConfirm, onCancel }) {
+  const [selected, setSelected] = useState(new Set());
+
+  function toggle(name) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(name) ? next.delete(name) : next.add(name);
+      return next;
+    });
+  }
+
+  return (
+    <div className="mt-3 rounded-lg border border-[#8cc8c5] bg-white shadow-md">
+      <div className="flex items-center justify-between border-b border-[#e4e7e3] px-4 py-2.5">
+        <span className="text-xs font-bold text-[#12857f]">✨ Gemini suggested these skills — add any?</span>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-sm font-bold text-[#516076] transition hover:text-[#102044]"
+        >
+          ✕
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-2 px-4 py-3">
+        {suggestions.map((name) => (
+          <button
+            key={name}
+            type="button"
+            onClick={() => toggle(name)}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition ${
+              selected.has(name)
+                ? "border-[#12857f] bg-[#eef9f7] text-[#12857f]"
+                : "border-[#d6dfdc] bg-white text-[#516076] hover:border-[#8cc8c5]"
+            }`}
+          >
+            <img src="/flower-bud.png" alt="" className="h-4 w-4 object-contain" />
+            {name}
+            {selected.has(name) && <span aria-hidden="true">✓</span>}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center justify-end gap-2 border-t border-[#e4e7e3] px-4 py-2.5">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-xs font-bold text-[#516076] transition hover:text-[#102044]"
+        >
+          No thanks
+        </button>
+        <button
+          type="button"
+          disabled={selected.size === 0}
+          onClick={() => onConfirm([...selected])}
+          className="inline-flex h-7 items-center gap-1.5 rounded-md bg-[#12857f] px-3 text-xs font-bold text-white transition hover:bg-[#0f706b] disabled:opacity-40"
+        >
+          + Add {selected.size > 0 ? selected.size : ""} Skill{selected.size !== 1 ? "s" : ""}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
 function ShareModal({ onClose }) {
   const [copied, setCopied] = useState(false);
@@ -119,9 +182,105 @@ function ShareModal({ onClose }) {
 export default function ProjectDetailPage({ project: projectProp, profile, onBack, onEdit }) {
   const [showShareModal, setShowShareModal] = useState(false);
   const [project, setProject] = useState(null);
-  const [skills, setSkills] = useState([]);
   const [moments, setMoments] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [localProgress, setLocalProgress] = useState(projectProp.progress ?? projectProp.stage ?? 0);
+  const [localSkills, setLocalSkills] = useState([]);
+  const [suggestLoading, setSuggestLoading] = useState(false);
+  const [suggestedSkills, setSuggestedSkills] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [suggestError, setSuggestError] = useState(null);
+
+  async function handleSuggestSkills() {
+    setSuggestLoading(true);
+    setSuggestError(null);
+    try {
+      const groq = new Groq({
+        apiKey: import.meta.env.VITE_GROQ_API_KEY,
+        dangerouslyAllowBrowser: true,
+      });
+      const existing = localSkills.map((s) => s.name).join(", ");
+
+      const result = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          {
+            role: "user",
+            content: `You are helping a student document skills they practiced on a project.
+
+Project: "${project?.name ?? projectProp.name}"
+Description: "${project?.description ?? projectProp.description ?? ''}"
+Skills already tracked: ${existing}
+
+Suggest 3-5 NEW skills (not in the list above) that a student would realistically practice or develop from this project. Return ONLY a valid JSON array of skill name strings — no explanation, no markdown.
+Example: ["Version Control", "User Research", "REST APIs"]`,
+          },
+        ],
+      });
+
+      const text = result.choices[0]?.message?.content ?? "";
+      const match = text.match(/\[[\s\S]*?\]/);
+      const names = match ? JSON.parse(match[0]) : [];
+      if (names.length === 0) throw new Error("No skills returned");
+      setSuggestedSkills(names);
+      setShowModal(true);
+    } catch (err) {
+      console.error("Skill suggestion failed:", err);
+      setSuggestError(err.message ?? "Something went wrong");
+    } finally {
+      setSuggestLoading(false);
+    }
+  }
+
+  async function handleConfirm(selectedNames) {
+    // Ask Groq to classify each skill into one of the four app categories
+    const VALID_CATEGORIES = ['TECHNICAL SKILLS', 'COMMUNICATION', 'CREATIVITY', 'LIFE & WELLBEING'];
+    let categories = {};
+    try {
+      const groq = new Groq({
+        apiKey: import.meta.env.VITE_GROQ_API_KEY,
+        dangerouslyAllowBrowser: true,
+      });
+      const result = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          {
+            role: "user",
+            content: `Assign each skill to exactly one of these four categories:
+- TECHNICAL SKILLS
+- COMMUNICATION
+- CREATIVITY
+- LIFE & WELLBEING
+
+Skills: ${JSON.stringify(selectedNames)}
+
+Return ONLY a valid JSON object mapping each skill name to its category string. No explanation, no markdown.
+Example: {"Version Control": "TECHNICAL SKILLS", "User Research": "COMMUNICATION"}`,
+          },
+        ],
+      });
+      const text = result.choices[0]?.message?.content ?? "";
+      const match = text.match(/\{[\s\S]*?\}/);
+      if (match) categories = JSON.parse(match[0]);
+    } catch (err) {
+      console.error("Category assignment failed:", err);
+    }
+
+    const inserts = selectedNames.map((name) => ({
+      name,
+      category: VALID_CATEGORIES.includes(categories[name]) ? categories[name] : 'TECHNICAL SKILLS',
+      project_id: projectProp.id,
+    }));
+
+    await supabase.from('skills').insert(inserts);
+
+    setLocalSkills((prev) => [
+      ...prev,
+      ...inserts.map((s) => ({ name: s.name, stage: 'Seed', category: s.category })),
+    ]);
+    setShowModal(false);
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -131,14 +290,20 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
         .eq('id', projectProp.id)
         .single();
 
-      if (proj) setProject(proj);
-      else setProject({
-        id: projectProp.id,
-        name: projectProp.name,
-        description: projectProp.description ?? '',
-        status: projectProp.status ?? (projectProp.stage >= 100 ? 'Completed' : 'In Progress'),
-        progress: projectProp.progress ?? projectProp.stage ?? 0,
-      });
+      if (proj) {
+        setProject(proj);
+        setLocalProgress(proj.progress ?? 0);
+      } else {
+        const fallback = {
+          id: projectProp.id,
+          name: projectProp.name,
+          description: projectProp.description ?? '',
+          status: projectProp.status ?? (projectProp.stage >= 100 ? 'Completed' : 'In Progress'),
+          progress: projectProp.progress ?? projectProp.stage ?? 0,
+        };
+        setProject(fallback);
+        setLocalProgress(fallback.progress);
+      }
 
       const { data: skillData } = await supabase
         .from('skills')
@@ -155,7 +320,7 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
             .limit(1);
           return { ...s, stage: mData?.[0]?.stage ?? 'Seed' };
         }));
-        setSkills(withStages);
+        setLocalSkills(withStages);
       }
 
       const { data: momentData } = await supabase
@@ -171,6 +336,12 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
     load();
   }, [projectProp.id]);
 
+  async function handleProgressSave(value) {
+    const status = value >= 100 ? 'Completed' : 'In Progress';
+    await supabase.from('projects').update({ progress: value, status }).eq('id', projectProp.id);
+    setProject(prev => prev ? { ...prev, progress: value, status } : prev);
+  }
+
   const displayProject = project ?? {
     name: projectProp.name,
     description: '',
@@ -178,7 +349,7 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
     progress: projectProp.progress ?? projectProp.stage ?? 0,
   };
 
-  const houseImg = displayProject.progress >= 100 ? '/house-done.png' : '/house-wip.png';
+  const houseImg = localProgress >= 100 ? '/house-done.png' : '/house-wip.png';
 
   return (
     <div className="min-h-screen bg-[#DCE8E0] text-[#2D4A3A]">
@@ -207,7 +378,7 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
         <section className="grid gap-6 rounded-2xl border border-[#C5D6CC] bg-[#F5F3EC] p-5 shadow-sm lg:grid-cols-[1.1fr_1fr_1.2fr]">
           <div className="relative flex min-h-56 items-center justify-center border-b border-[#C5D6CC] pb-4 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-5">
             <img src={houseImg} alt="" className="h-60 w-full max-w-md object-contain" />
-            {displayProject.progress >= 100 && (
+            {localProgress >= 100 && (
               <div className="absolute right-4 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#6f9580] text-2xl font-bold text-white shadow">✓</div>
             )}
           </div>
@@ -218,16 +389,29 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
               <div className="grid grid-cols-[1.75rem_6rem_1fr] items-center gap-2">
                 <span aria-hidden="true" className="text-xl text-green-600">●</span>
                 <dt className="font-bold text-[#6b8275]">Status</dt>
-                <dd className="font-bold text-[#4F6F5E]">{displayProject.status}</dd>
+                <dd className="font-bold text-[#4F6F5E]">{localProgress >= 100 ? 'Completed' : 'In Progress'}</dd>
               </div>
               <div className="grid grid-cols-[1.75rem_6rem_1fr] items-center gap-2">
                 <TrendingUp size={16} color="#2D4A3A" />
                 <dt className="font-bold text-[#6b8275]">Progress</dt>
-                <dd className="flex items-center gap-3 font-bold">
-                  {displayProject.progress}%
-                  <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-[#d8e6e0]">
-                    <span className="block h-full rounded-full bg-[#159a93]" style={{ width: `${displayProject.progress}%` }} />
-                  </span>
+                <dd className="flex flex-col gap-1.5 font-bold">
+                  <div className="flex items-center gap-3">
+                    <span>{localProgress}%</span>
+                    <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-[#d8e6e0]">
+                      <span className="block h-full rounded-full bg-[#159a93] transition-all duration-150" style={{ width: `${localProgress}%` }} />
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={localProgress}
+                    onChange={(e) => setLocalProgress(Number(e.target.value))}
+                    onMouseUp={(e) => handleProgressSave(Number(e.target.value))}
+                    onTouchEnd={(e) => handleProgressSave(Number(e.target.value))}
+                    className="w-full cursor-pointer accent-[#159a93]"
+                  />
                 </dd>
               </div>
             </dl>
@@ -254,16 +438,36 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
           </div>
         </section>
 
-        <Section number="2" title="Skills Grown">
+        <Section
+          number="2"
+          title="Skills Grown"
+          action={
+            <button
+              type="button"
+              disabled={suggestLoading}
+              onClick={handleSuggestSkills}
+              className="inline-flex items-center gap-2 rounded-md border border-[#C5D6CC] px-4 py-2 text-xs font-bold text-[#4F6F5E] transition hover:bg-[#EAF0EA] disabled:opacity-50"
+            >
+              {suggestLoading ? (
+                <>
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#4F6F5E] border-t-transparent" />
+                  Thinking...
+                </>
+              ) : (
+                <>✨ Suggest with AI</>
+              )}
+            </button>
+          }
+        >
           {loading ? (
-            <div className="text-sm text-[#8aa394] py-4 text-center">Loading skills...</div>
-          ) : skills.length === 0 ? (
-            <div className="text-sm text-[#8aa394] py-4 text-center">No skills linked to this project yet — connect skills from the dashboard.</div>
+            <div className="py-4 text-center text-sm text-[#8aa394]">Loading skills...</div>
+          ) : localSkills.length === 0 ? (
+            <div className="py-4 text-center text-sm text-[#8aa394]">No skills linked to this project yet — connect skills from the dashboard.</div>
           ) : (
             <div className="relative overflow-hidden px-2 pb-1 pt-2">
               <div className="absolute left-20 right-20 top-[6.75rem] hidden border-t-2 border-dotted border-amber-300 md:block" />
               <div className="relative grid gap-4 md:grid-cols-4">
-                {skills.map(skill => (
+                {localSkills.map((skill) => (
                   <div key={skill.name} className="flex items-center justify-center gap-4 md:flex-col">
                     <img src={STAGE_IMAGES[skill.stage] ?? '/flower-seed.png'} alt="" className="h-24 w-24 object-contain" />
                     <div className="min-w-36 md:min-w-0 md:text-center">
@@ -274,22 +478,48 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
                 ))}
               </div>
               <p className="mt-3 text-center text-sm font-bold text-[#8aa394]">
-                {skills.length} skills supported by project evidence
+                {localSkills.length} skills supported by project evidence
               </p>
             </div>
           )}
+          {suggestError && (
+            <p className="mt-2 text-center text-xs font-bold text-rose-600">
+              ⚠ {suggestError}
+            </p>
+          )}
+          {showModal && (
+            <SuggestSkillsPopup
+              suggestions={suggestedSkills}
+              onConfirm={handleConfirm}
+              onCancel={() => setShowModal(false)}
+            />
+          )}
         </Section>
 
-        <Section number="3" title="Key Moments">
+        <Section
+          number="3"
+          title="Key Moments"
+          action={
+            <button
+              type="button"
+              className="rounded-md border border-[#C5D6CC] px-4 py-2 text-xs font-bold text-[#4F6F5E] transition hover:bg-[#EAF0EA]"
+            >
+              View all moments
+            </button>
+          }
+        >
           {loading ? (
-            <div className="text-sm text-[#8aa394] py-4 text-center">Loading moments...</div>
+            <div className="py-4 text-center text-sm text-[#8aa394]">Loading moments...</div>
           ) : moments.length === 0 ? (
-            <div className="text-sm text-[#8aa394] py-4 text-center">No moments linked to this project yet.</div>
+            <div className="py-4 text-center text-sm text-[#8aa394]">No moments linked to this project yet.</div>
           ) : (
-            <div className="overflow-hidden rounded-xl border border-[#C5D6CC] bg-[#F5F3EC]">
-              {moments.map(m => (
-                <div key={m.id} className="grid gap-3 border-b border-[#e2e8e2] px-4 py-3 last:border-b-0 md:grid-cols-[4rem_8rem_1fr_8rem] md:items-center">
-                  <span className={`flex h-10 w-10 items-center justify-center rounded-md text-xl ${m.type === 'accomplishment' ? 'text-green-700 bg-green-100' : 'text-amber-700 bg-amber-100'}`}>
+            <div className="overflow-hidden rounded-xl border border-[#C5D6CC] bg-[#FBFAF5]">
+              {moments.map((m) => (
+                <div
+                  key={m.id}
+                  className="grid gap-3 border-b border-[#e2e8e2] px-4 py-3 last:border-b-0 md:grid-cols-[4rem_8rem_1fr_10rem_1fr] md:items-center"
+                >
+                  <span className={`flex h-10 w-10 items-center justify-center rounded-md text-xl ${m.type === 'accomplishment' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                     {m.type === 'accomplishment' ? '🏆' : '⚡'}
                   </span>
                   <span className="text-sm font-bold text-[#2D4A3A] capitalize">{m.type}</span>
@@ -297,39 +527,35 @@ export default function ProjectDetailPage({ project: projectProp, profile, onBac
                   <span className="text-sm font-bold text-[#6b8275]">
                     {new Date(m.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                   </span>
+                  {m.skill && (
+                    <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-[#6b8275]">
+                      Skills:
+                      <SkillPill>{m.skill}</SkillPill>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </Section>
 
-        <section className="relative overflow-hidden rounded-2xl border border-amber-200 bg-[#fff9ec] px-5 py-5 shadow-sm">
-          <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
-            <div>
-              <h2 className="mb-4 flex items-center gap-3 text-sm font-bold uppercase tracking-wide text-amber-700">
-                <span aria-hidden="true" className="text-2xl">✨</span>
-                4. AI Project Story
-              </h2>
-              <p className="max-w-3xl text-sm font-bold leading-6 text-[#2d3447]">
-                {displayProject.story ?? 'Log moments and connect skills to generate your project story.'}
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button type="button" className="inline-flex h-11 items-center justify-center gap-3 rounded-md border border-amber-300 bg-white/50 px-6 text-sm font-bold text-amber-700 transition hover:bg-white">
-                <span aria-hidden="true">✎</span> Edit Story
-              </button>
+        <Section number="4" title="Evidence">
+          <div className="grid gap-4 md:grid-cols-3">
+            {defaultLinks.map((item) => (
               <button
+                key={item.label}
                 type="button"
-                className="inline-flex h-11 items-center justify-center gap-3 rounded-md border border-amber-300 bg-white/50 px-6 text-sm font-bold text-amber-700 transition hover:bg-white"
+                className="grid h-20 grid-cols-[5rem_1fr_2rem] items-center gap-3 rounded-md border border-[#C5D6CC] bg-[#FBFAF5] px-4 text-left transition hover:border-[#4F6F5E]"
               >
-                <Star size={16} />
-                Add to Season Recap
+                <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-md bg-[#2D4A3A] text-3xl font-bold text-white">
+                  {item.icon}
+                </span>
+                <span className="text-sm font-bold text-[#2D4A3A]">{item.label}</span>
+                <span aria-hidden="true" className="text-2xl font-bold text-[#4F6F5E]">↗</span>
               </button>
-            </div>
+            ))}
           </div>
-          <img src="/flower-bloom-red.png" alt="" className="pointer-events-none absolute bottom-1 right-2 hidden h-16 w-16 object-contain opacity-90 md:block" />
-        </section>
-
+        </Section>
       </main>
 
       {showShareModal && <ShareModal onClose={() => setShowShareModal(false)} />}
