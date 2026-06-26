@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { isSupabaseConfigured, supabase } from '../supabaseClient';
 
 const stageColors = {
   Seed: '#B4B2A9',
@@ -128,6 +128,12 @@ export default function SkillHistory({ skill: skillName, onClose }) {
 
   useEffect(() => {
     const fetchMoments = async () => {
+      if (!isSupabaseConfigured) {
+        setMoments([]);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('moments')
         .select('*')

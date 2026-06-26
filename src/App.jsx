@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { defaultBusyBeeData } from './data/busyBeeData';
-import { supabase } from './supabaseClient';
+import { isSupabaseConfigured, supabase } from './supabaseClient';
 import MomentModal from './components/MomentModal';
 import TodaysMoments from './components/TodaysMoments';
 import SkillHistory from './components/SkillHistory';
@@ -52,6 +52,11 @@ function App() {
 
 useEffect(() => {
   const fetchAllMoments = async () => {
+    if (!isSupabaseConfigured) {
+      setSkillStages({});
+      return;
+    }
+
     const { data, error } = await supabase
       .from('moments')
       .select('skill, stage, created_at')

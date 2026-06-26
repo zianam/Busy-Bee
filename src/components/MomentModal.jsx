@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { supabase } from '../supabaseClient';
+import { isSupabaseConfigured, supabase } from '../supabaseClient';
 
 const SKILLS = {
   'Technical': ['React', 'Debugging', 'API Integration', 'Git'],
@@ -62,6 +62,11 @@ export default function MomentModal({ onClose, onConfirm }) {
   };
 
   const handleConfirm = async () => {
+    if (!isSupabaseConfigured) {
+      alert('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to save moments.');
+      return;
+    }
+
     setSaving(true);
     try {
       const { error } = await supabase

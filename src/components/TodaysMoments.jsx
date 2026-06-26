@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { isSupabaseConfigured, supabase } from '../supabaseClient';
 
 const SIGNIFICANCE_LABELS = { 1: 'Very Easy', 2: 'Easy', 3: 'Medium', 4: 'Hard', 5: 'Very Hard' };
 const SIGNIFICANCE_COLORS = {
@@ -33,6 +33,12 @@ export default function TodaysMoments({ onAddMoment, refreshTrigger }) {
 
   useEffect(() => {
     const fetchToday = async () => {
+      if (!isSupabaseConfigured) {
+        setMoments([]);
+        setLoading(false);
+        return;
+      }
+
       const today = new Date().toISOString().slice(0, 10);
 
       const { data, error } = await supabase
