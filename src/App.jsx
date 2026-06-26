@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { defaultBusyBeeData } from './data/busyBeeData';
 import MomentModal from './components/MomentModal';
+import TodaysMoments from './components/TodaysMoments';
 import SkillHistory from './components/SkillHistory';
 import ProjectDetailPage from './components/ProjectDetailPage';
 import LoadingScreen from './components/LoadingScreen';
@@ -13,6 +14,7 @@ function App() {
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [moments, setMoments] = useState([]);
 
   // Auto-dismiss the intro overlay after the bee's flight completes
   useEffect(() => {
@@ -23,7 +25,8 @@ function App() {
   const handleMomentConfirm = (momentData) => {
     setBeeDancing(true);
     setTimeout(() => setBeeDancing(false), 1500);
-    console.log('Moment saved:', momentData);
+    const today = new Date().toISOString().slice(0, 10);
+    setMoments(prev => [...prev, { ...momentData, id: Date.now(), date: today }]);
     setShowMomentModal(false);
   };
 
@@ -349,35 +352,8 @@ function App() {
           </ul>
         </div>
 
-        {/* Today's Focus */}
-        <div className="lg:col-span-2 bg-[#F5F3EC] rounded-2xl shadow-sm p-6">
-          <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A]">✅ TODAY'S FOCUS</h2>
-          <p className="text-sm text-[#8aa394] mb-2">what you're planning to work on</p>
-          <ul className="flex flex-col gap-3 text-sm">
-
-            <li className="flex items-center gap-3">
-              <input type="checkbox" className="w-4 h-4 accent-[#7a9a87]" />
-              <span className="font-medium text-[#2D4A3A]">Finish login flow</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#dde7e2] text-[#2D4A3A]">Technical</span>
-              <a href="#" className="ml-auto text-xs text-[#4F6F5E] hover:underline whitespace-nowrap">+ Log as a Moment</a>
-            </li>
-
-            <li className="flex items-center gap-3">
-              <input type="checkbox" className="w-4 h-4 accent-[#7a9a87]" />
-              <span className="font-medium text-[#2D4A3A]">Practice project presentation</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#dde7e2] text-[#2D4A3A]">Communication</span>
-              <a href="#" className="ml-auto text-xs text-[#4F6F5E] hover:underline whitespace-nowrap">+ Log as a Moment</a>
-            </li>
-
-            <li className="flex items-center gap-3">
-              <input type="checkbox" className="w-4 h-4 accent-[#7a9a87]" />
-              <span className="font-medium text-[#2D4A3A]">Go to the gym</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-[#dde7e2] text-[#2D4A3A]">Life & Wellbeing</span>
-              <a href="#" className="ml-auto text-xs text-[#4F6F5E] hover:underline whitespace-nowrap">+ Log as a Moment</a>
-            </li>
-
-          </ul>
-        </div>
+        {/* Today's Moments */}
+        <TodaysMoments moments={moments} onAddMoment={() => setShowMomentModal(true)} />
 
         {/* Balance Check */}
         <div className="bg-[#F5F3EC] rounded-2xl shadow-sm p-6">

@@ -19,6 +19,7 @@ export default function MomentModal({ onClose, onConfirm }) {
   const [step, setStep] = useState('questions'); // questions, reflection, confirm
   const [answers, setAnswers] = useState({
     action: '',
+    type: 'accomplishment',
     category: '',
     skill: '',
     significance: 3
@@ -95,6 +96,33 @@ export default function MomentModal({ onClose, onConfirm }) {
 
             {/* Questions Container */}
             <div>
+              {/* Type Toggle */}
+              <div className="mb-8 flex gap-3">
+                <button
+                  onClick={() => handleAnswerChange('type', 'accomplishment')}
+                  className={`flex-1 py-3 rounded-xl font-semibold text-base transition border ${
+                    answers.type === 'accomplishment'
+                      ? 'bg-[#4F6F5E] text-[#F5F3EC] border-[#4F6F5E]'
+                      : 'bg-white text-[#2D4A3A] border-[#C5D6CC] hover:bg-[#EAF0EA]'
+                  }`}
+                >
+                  🏆 Accomplishment
+                </button>
+                <button
+                  onClick={() => handleAnswerChange('type', 'challenge')}
+                  className={`flex-1 py-3 rounded-xl font-semibold text-base transition border ${
+                    answers.type === 'challenge'
+                      ? 'bg-[#4F6F5E] text-[#F5F3EC] border-[#4F6F5E]'
+                      : 'bg-white text-[#2D4A3A] border-[#C5D6CC] hover:bg-[#EAF0EA]'
+                  }`}
+                >
+                  ⚡ Challenge
+                </button>
+              </div>
+
+              {/* Soft sage divider */}
+              <div className="border-t border-[#dfe7e0] mb-8"></div>
+
               {/* Question 1: What did you do? */}
               <div className="mb-8">
                 <label className="flex items-center text-base font-semibold text-[#2D4A3A] mb-3">
