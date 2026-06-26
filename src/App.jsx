@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { defaultBusyBeeData } from './data/busyBeeData';
 import MomentModal from './components/MomentModal';
 import SkillHistory from './components/SkillHistory';
 import ProjectDetailPage from './components/ProjectDetailPage';
+import LoadingScreen from './components/LoadingScreen';
 
 const { profile } = defaultBusyBeeData;
 
@@ -11,6 +12,13 @@ function App() {
   const [beeDancing, setBeeDancing] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Auto-dismiss the intro overlay after the bee's flight completes
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 6500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleMomentConfirm = (momentData) => {
     setBeeDancing(true);
@@ -36,6 +44,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#DCE8E0]">
+      {loading && <LoadingScreen />}
+
       <div className="w-full px-6 pt-4 pb-28">
 
       {/* TOgiotP STATS BAR */}
