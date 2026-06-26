@@ -10,6 +10,22 @@ const stageColors = {
 
 const stageOrder = { Seed: 1, Sprout: 2, Bud: 3, Bloom: 4 };
 
+function calculateStreak(moments) {
+  if (!moments || moments.length === 0) return 0;
+  const days = [...new Set(moments.map(m =>
+    new Date(m.created_at).toISOString().split('T')[0]
+  ))].sort().reverse();
+  let streak = 1;
+  for (let i = 0; i < days.length - 1; i++) {
+    const curr = new Date(days[i]);
+    const next = new Date(days[i + 1]);
+    const diff = (curr - next) / (1000 * 60 * 60 * 24);
+    if (diff === 1) streak++;
+    else break;
+  }
+  return streak;
+}
+
 function GrowthChart({ moments }) {
   if (!moments || moments.length === 0) return (
     <div className="flex items-center justify-center h-32 text-[#8aa394] text-sm">No moments logged yet</div>
@@ -154,6 +170,7 @@ export default function SkillHistory({ skill: skillName, onClose }) {
   const daysAgo = moments.length > 0
     ? Math.floor((new Date() - new Date(moments[0].created_at)) / (1000 * 60 * 60 * 24))
     : null;
+  const streak = calculateStreak(moments);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -174,6 +191,12 @@ export default function SkillHistory({ skill: skillName, onClose }) {
           <div className="text-center">
             <div className="text-xs text-[#8aa394] uppercase tracking-wider mb-1">Moments</div>
             <div className="text-lg font-bold text-[#2D4A3A]">{moments.length}</div>
+          </div>
+          <div className="w-px h-10 bg-[#cdd8cf]"></div>
+          <div className="text-center">
+            <div className="text-xs text-[#8aa394] uppercase tracking-wider mb-1">Streak</div>
+            <div className="text-lg font-bold text-[#2D4A3A]">{streak} 🔥</div>
+            <div className="text-xs text-[#8aa394] mt-0.5">days</div>
           </div>
           <div className="w-px h-10 bg-[#cdd8cf]"></div>
           <div className="text-center">

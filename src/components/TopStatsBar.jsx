@@ -13,7 +13,6 @@ export default function TopStatsBar({ beeDancing }) {
   const [projectsDone, setProjectsDone] = useState(0);
   const [momentsLogged, setMomentsLogged] = useState(0);
   const [skills, setSkills] = useState([]);
-  const [skillMomentCounts, setSkillMomentCounts] = useState({});
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -27,13 +26,16 @@ export default function TopStatsBar({ beeDancing }) {
       const { data: moments } = await supabase
         .from('moments')
         .select('id, skill, stage, category');
+
+      const counts = {};
+      const latestStage = {};
+
       if (moments) {
         setMomentsLogged(moments.length);
-        const counts = {};
         moments.forEach(m => {
           if (m.skill) counts[m.skill] = (counts[m.skill] ?? 0) + 1;
+          if (m.skill && m.stage) latestStage[m.skill] = m.stage;
         });
-        setSkillMomentCounts(counts);
       }
 
       const { data: skillData } = await supabase
@@ -41,12 +43,7 @@ export default function TopStatsBar({ beeDancing }) {
         .select('name, category')
         .order('created_at', { ascending: true });
 
-      if (skillData && moments) {
-        const latestStage = {};
-        moments
-          .filter(m => m.skill && m.stage)
-          .forEach(m => { latestStage[m.skill] = m.stage; });
-
+      if (skillData) {
         setSkills(skillData.map(s => ({
           name: s.name,
           category: s.category,
@@ -56,7 +53,6 @@ export default function TopStatsBar({ beeDancing }) {
       }
     };
 
-    const counts = {};
     fetchAll();
   }, []);
 
@@ -106,7 +102,7 @@ export default function TopStatsBar({ beeDancing }) {
           onClick={() => setShowGlance(false)}
         >
           <div
-            className="bg-white rounded-2xl p-8 w-full max-w-3xl max-h-[80vh] overflow-y-auto"
+            className="bg-white rounded-2xl p-8 w-full max-w-3xl max-h-[80vh] override-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
