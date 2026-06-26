@@ -76,48 +76,53 @@ export default function MomentModal({ onClose, onConfirm }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-      <div className="bg-white w-screen h-screen flex flex-col overflow-hidden">
-        
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+      <div className="bg-[#F5F3EC] rounded-2xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+
         {/* QUESTIONS STEP */}
         {step === 'questions' && (
-          <div className="p-12 overflow-y-auto flex-1 flex flex-col">
+          <div className="flex flex-col">
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-4xl font-bold">✨ Log a Moment</h2>
+              <h2 className="text-2xl font-bold text-[#2D4A3A]">Log a Moment</h2>
               <button
                 onClick={onClose}
-                className="text-4xl font-bold hover:bg-gray-100 w-12 h-12 flex items-center justify-center rounded"
+                className="text-2xl font-bold text-[#6b8275] hover:bg-[#EAF0EA] w-10 h-10 flex items-center justify-center rounded-lg transition"
               >
                 ×
               </button>
             </div>
 
             {/* Questions Container */}
-            <div className="max-w-2xl">
+            <div>
               {/* Question 1: What did you do? */}
               <div className="mb-8">
-                <label className="block text-lg font-semibold text-gray-700 mb-3">
-                  1️⃣ What did you do?
+                <label className="flex items-center text-base font-semibold text-[#2D4A3A] mb-3">
+                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-[#4F6F5E] text-[#F5F3EC] text-sm font-bold mr-3">1</span>
+                  What did you do?
                 </label>
                 <textarea
                   value={answers.action}
                   onChange={(e) => handleAnswerChange('action', e.target.value)}
                   placeholder="e.g., Fixed a critical bug in production..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none text-base"
+                  className="w-full px-4 py-3 bg-white border border-[#C5D6CC] rounded-xl text-[#2D4A3A] placeholder-[#8aa394] focus:outline-none focus:ring-2 focus:ring-[#4F6F5E] focus:border-[#4F6F5E] resize-none text-base transition"
                   rows="4"
                 />
               </div>
 
+              {/* Soft sage divider */}
+              <div className="border-t border-[#dfe7e0] my-8"></div>
+
               {/* Question 2: Which skill? */}
               <div className="mb-8">
-                <label className="block text-lg font-semibold text-gray-700 mb-3">
-                  2️⃣ Which skill category?
+                <label className="flex items-center text-base font-semibold text-[#2D4A3A] mb-3">
+                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-[#4F6F5E] text-[#F5F3EC] text-sm font-bold mr-3">2</span>
+                  Which skill category?
                 </label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => handleAnswerChange('category', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 text-base"
+                  className="w-full px-4 py-3 bg-white border border-[#C5D6CC] rounded-xl text-[#2D4A3A] focus:outline-none focus:ring-2 focus:ring-[#4F6F5E] focus:border-[#4F6F5E] text-base transition"
                 >
                   <option value="">Select a category...</option>
                   <option value="Technical">💻 Technical</option>
@@ -128,7 +133,7 @@ export default function MomentModal({ onClose, onConfirm }) {
 
                 {selectedCategory && (
                   <div className="mt-4">
-                    <label className="block text-sm font-semibold text-gray-600 mb-3">
+                    <label className="block text-sm font-semibold text-[#6b8275] mb-3">
                       Select specific skill:
                     </label>
                     <div className="grid grid-cols-3 gap-3">
@@ -136,10 +141,10 @@ export default function MomentModal({ onClose, onConfirm }) {
                         <button
                           key={skill}
                           onClick={() => handleAnswerChange('skill', skill)}
-                          className={`px-4 py-3 rounded-lg text-base font-medium transition ${
+                          className={`px-4 py-3 rounded-xl text-base font-medium transition border ${
                             answers.skill === skill
-                              ? 'bg-rose-500 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-[#4F6F5E] text-[#F5F3EC] border-[#4F6F5E]'
+                              : 'bg-white text-[#2D4A3A] border-[#C5D6CC] hover:bg-[#EAF0EA]'
                           }`}
                         >
                           {skill}
@@ -150,27 +155,31 @@ export default function MomentModal({ onClose, onConfirm }) {
                 )}
               </div>
 
+              {/* Soft sage divider */}
+              <div className="border-t border-[#dfe7e0] my-8"></div>
+
               {/* Question 3: How significant? */}
               <div className="mb-8">
-                <label className="block text-lg font-semibold text-gray-700 mb-3">
-                  3️⃣ How significant? {answers.significance}/5
+                <label className="flex items-center text-base font-semibold text-[#2D4A3A] mb-3">
+                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-[#4F6F5E] text-[#F5F3EC] text-sm font-bold mr-3">3</span>
+                  How significant? {answers.significance}/5
                 </label>
                 <div className="flex gap-3">
                   {[1, 2, 3, 4, 5].map(num => (
                     <button
                       key={num}
                       onClick={() => handleAnswerChange('significance', num)}
-                      className={`flex-1 py-4 rounded-lg font-bold text-lg transition ${
+                      className={`flex-1 py-4 rounded-xl font-bold text-lg transition border ${
                         answers.significance === num
-                          ? 'bg-rose-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-[#4F6F5E] text-[#F5F3EC] border-[#4F6F5E]'
+                          : 'bg-[#FBFAF5] text-[#2D4A3A] border-[#C5D6CC] hover:bg-[#EAF0EA]'
                       }`}
                     >
                       {num}
                     </button>
                   ))}
                 </div>
-                <div className="text-sm text-gray-500 mt-3 flex justify-between">
+                <div className="text-sm text-[#6b8275] mt-3 flex justify-between">
                   <span>Small</span>
                   <span>Life-changing</span>
                 </div>
@@ -178,11 +187,11 @@ export default function MomentModal({ onClose, onConfirm }) {
             </div>
 
             {/* Submit Button */}
-            <div className="mt-8">
+            <div className="mt-4">
               <button
                 onClick={generateReflection}
                 disabled={!answers.action || !answers.skill || loading}
-                className="bg-rose-500 text-white px-8 py-4 rounded-lg font-bold hover:bg-rose-600 disabled:bg-gray-400 transition text-lg"
+                className="bg-[#E8806B] text-white px-8 py-4 rounded-full font-bold hover:bg-[#d9735f] disabled:bg-[#cbd5cd] disabled:text-[#8aa394] transition text-lg shadow-md shadow-[#E8806B]/30 disabled:shadow-none"
               >
                 {loading ? 'Reflecting...' : 'Get AI Reflection'}
               </button>
@@ -192,26 +201,26 @@ export default function MomentModal({ onClose, onConfirm }) {
 
         {/* REFLECTION STEP */}
         {step === 'reflection' && (
-          <div className="p-12 text-center flex flex-col items-center justify-center flex-1">
+          <div className="text-center flex flex-col items-center justify-center">
             {/* Flower Animation */}
             <div className="mb-8">
-              <div className="text-9xl mb-6 animate-bounce">
+              <div className="text-8xl mb-6 animate-bounce">
                 {FLOWERS[flower]}
               </div>
-              <div className="text-2xl font-semibold text-gray-600 mb-6">
+              <div className="text-2xl font-semibold text-[#4a6553] mb-6">
                 You've reached {flower} level!
               </div>
             </div>
 
             {/* Reflection Text */}
-            <div className="bg-gradient-to-r from-rose-50 to-pink-50 p-8 rounded-lg mb-8 border-2 border-rose-200 max-w-2xl">
-              <p className="text-xl text-gray-800 font-medium">✨ {reflection}</p>
+            <div className="bg-[#EAF0EA] p-8 rounded-xl mb-8 border border-[#C5D6CC] w-full">
+              <p className="text-xl text-[#2D4A3A] font-medium">✨ {reflection}</p>
             </div>
 
             {/* Skill & Category Display */}
-            <div className="text-lg text-gray-600 mb-12">
-              <div className="font-bold text-2xl text-gray-700 mb-3">{answers.skill}</div>
-              <div className="text-base text-gray-500">Significance: {answers.significance}/5</div>
+            <div className="text-lg text-[#4a6553] mb-10">
+              <div className="font-bold text-2xl text-[#2D4A3A] mb-3">{answers.skill}</div>
+              <div className="text-base text-[#6b8275]">Significance: {answers.significance}/5</div>
             </div>
 
             {/* Buttons */}
@@ -219,7 +228,7 @@ export default function MomentModal({ onClose, onConfirm }) {
               {/* Confirm Button */}
               <button
                 onClick={handleConfirm}
-                className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-8 py-4 rounded-lg font-bold hover:from-rose-600 hover:to-pink-600 transition text-lg"
+                className="bg-[#E8B84B] text-[#2D4A3A] px-8 py-4 rounded-full font-bold hover:bg-[#d9a93c] transition text-lg shadow-md shadow-[#E8B84B]/30"
               >
                 🎉 Confirm & Update Flower
               </button>
@@ -227,7 +236,7 @@ export default function MomentModal({ onClose, onConfirm }) {
               {/* Back Button */}
               <button
                 onClick={() => setStep('questions')}
-                className="bg-gray-200 text-gray-700 px-8 py-4 rounded-lg font-bold hover:bg-gray-300 transition text-lg"
+                className="bg-white text-[#2D4A3A] border border-[#C5D6CC] px-8 py-4 rounded-full font-bold hover:bg-[#EAF0EA] transition text-lg"
               >
                 Edit
               </button>
