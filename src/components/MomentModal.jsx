@@ -9,10 +9,10 @@ const CATEGORY_MAP = {
 };
 
 const CONFIDENCE_STAGES = [
-  { label: 'Just starting', emoji: '🌱', stage: 'Seed', desc: 'Still finding my footing' },
-  { label: 'Getting there', emoji: '🌿', stage: 'Sprout', desc: 'Starting to get it' },
-  { label: 'Solid', emoji: '🌷', stage: 'Bud', desc: 'I applied this for real' },
-  { label: 'Owning it', emoji: '🌸', stage: 'Bloom', desc: 'This is becoming second nature' },
+  { label: 'Just starting', emoji: '🌱', img: '/growth-seed.png', stage: 'Seed', desc: 'Still finding my footing' },
+  { label: 'Getting there', emoji: '🌿', img: '/growth-sprout.png', stage: 'Sprout', desc: 'Starting to get it' },
+  { label: 'Solid', emoji: '🌷', img: '/growth-bud.png', stage: 'Bud', desc: 'I applied this for real' },
+  { label: 'Owning it', emoji: '🌸', img: '/growth-bloom.png', stage: 'Bloom', desc: 'This is becoming second nature' },
 ];
 
 export default function MomentModal({ onClose, onConfirm }) {
@@ -189,13 +189,13 @@ export default function MomentModal({ onClose, onConfirm }) {
             How confident do you feel about this skill now?
           </label>
           <div className="flex flex-col gap-3">
-            {CONFIDENCE_STAGES.map(({ label, emoji, desc }) => (
+            {CONFIDENCE_STAGES.map(({ label, img, desc }) => (
               <button
                 key={label}
                 onClick={() => handleAnswerChange('confidence', label)}
                 className={`flex items-center gap-4 px-5 py-4 rounded-xl text-left transition border ${answers.confidence === label ? 'bg-[#4F6F5E] text-[#F5F3EC] border-[#4F6F5E]' : 'bg-white text-[#2D4A3A] border-[#C5D6CC] hover:bg-[#EAF0EA]'}`}
               >
-                <span className="text-2xl">{emoji}</span>
+                <img src={img} alt="" className="w-8 h-8 object-contain" />
                 <div>
                   <div className="font-semibold text-base">{label}</div>
                   <div className={`text-xs mt-0.5 ${answers.confidence === label ? 'text-[#cbddd2]' : 'text-[#8aa394]'}`}>{desc}</div>
