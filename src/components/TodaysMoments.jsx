@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { Sparkles } from 'lucide-react';
 
 const SIGNIFICANCE_LABELS = { 1: 'Very Easy', 2: 'Easy', 3: 'Medium', 4: 'Hard', 5: 'Very Hard' };
 const SIGNIFICANCE_COLORS = {
@@ -10,12 +11,17 @@ const SIGNIFICANCE_COLORS = {
   5: 'bg-red-100 text-red-700',
 };
 
-const FLOWER_EMOJI = { Bloom: '🌸', Bud: '🌷', Sprout: '🌿', Seed: '🌱' };
+const STAGE_GROWTH = {
+  Seed: '/growth-seed.png',
+  Sprout: '/growth-sprout.png',
+  Bud: '/growth-bud.png',
+  Bloom: '/growth-bloom.png',
+};
 
 function MomentItem({ moment }) {
   return (
     <li className="flex items-start gap-3 text-sm py-2 border-b border-[#e8e4d9] last:border-0">
-      <span className="text-base leading-none mt-0.5">{FLOWER_EMOJI[moment.stage] ?? '🌱'}</span>
+      <img src={STAGE_GROWTH[moment.stage] ?? '/growth-seed.png'} alt="" className="w-8 h-8 object-contain shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <p className="font-medium text-[#2D4A3A] leading-snug">{moment.description}</p>
         <p className="text-xs text-[#6b8275] mt-0.5">{moment.skill || moment.category}</p>
@@ -55,7 +61,7 @@ export default function TodaysMoments({ onAddMoment, refreshTrigger }) {
 
   return (
     <div className="lg:col-span-2 bg-[#F5F3EC] rounded-2xl shadow-sm p-6">
-      <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A]">✨ TODAY'S MOMENTS</h2>
+      <h2 className="text-sm font-bold tracking-wide text-[#2D4A3A] flex items-center gap-1.5"><Sparkles size={16} color="#2D4A3A" /> TODAY'S MOMENTS</h2>
       <p className="text-sm text-[#8aa394] mb-4">moments you've logged today</p>
 
       {loading ? (
@@ -68,7 +74,7 @@ export default function TodaysMoments({ onAddMoment, refreshTrigger }) {
           </button>
         </div>
       ) : (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 max-h-96 overflow-y-auto pr-1">
           {accomplishments.length > 0 && (
             <div>
               <h3 className="text-xs font-semibold text-[#6b8275] uppercase tracking-wider mb-2">🏆 Accomplishments</h3>
