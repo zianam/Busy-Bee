@@ -1,3 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import "tailwindcss";
+
+html,
+body {
+  font-family: 'Space Mono', ui-monospace, 'JetBrains Mono', monospace;
+  color: #2D4A3A;
+}
+
+/* Ensure form controls inherit the monospace font */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

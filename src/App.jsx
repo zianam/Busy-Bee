@@ -1,6 +1,16 @@
 import { useState } from 'react';
-import MomentModal from './MomentModal';
-import SkillHistory from './SkillHistory';
+import { defaultBusyBeeData } from './data/busyBeeData';
+import TopStatsBar from './components/TopStatsBar';
+import ProjectsPanel from './components/ProjectsPanel';
+import SkillCard from './components/skillCard';
+import GrowthKey from './components/GrowthKey';
+import TodaysFocus from './components/TodaysFocus';
+import BalanceCheck from './components/BalanceCheck';
+import MomentModal from './components/MomentModal';
+import SkillHistory from './components/SkillHistory';
+import AddMomentBtn from './components/AddMomentBtn';
+
+const { profile, skillCategories, projectCategories, microWins, todaysFocus } = defaultBusyBeeData;
 
 function App() {
   const [showMomentModal, setShowMomentModal] = useState(false);
@@ -8,14 +18,9 @@ function App() {
   const [selectedSkill, setSelectedSkill] = useState(null);
 
   const handleMomentConfirm = (momentData) => {
-    // Trigger bee dance animation
     setBeeDancing(true);
     setTimeout(() => setBeeDancing(false), 1500);
-    
-    // Here you would save the moment data
     console.log('Moment saved:', momentData);
-    
-    // Close modal
     setShowMomentModal(false);
   };
 
@@ -23,7 +28,7 @@ function App() {
     <div className="min-h-screen bg-[#DCE8E0]">
       <div className="w-full px-6 py-4">
 
-      {/* TOP STATS BAR */}
+      {/* TOgiotP STATS BAR */}
       <div className="flex items-center gap-4 bg-[#4F6F5E] text-white rounded-2xl px-5 py-3">
 
         {/* Avatar + name */}
@@ -270,7 +275,6 @@ function App() {
           </div>
 
         </div>
-
       </div>
 
       {/* BOTTOM ROW */}
@@ -387,24 +391,19 @@ function App() {
 
       </div>
 
-      {/* ADD MOMENT BUTTON */}
-      <button
-        onClick={() => setShowMomentModal(true)}
-        className="fixed bottom-8 right-8 flex items-center gap-2 rounded-full bg-rose-500 text-white font-bold px-6 py-4 shadow-lg shadow-rose-500/50 hover:bg-rose-600 transition"
-      >
-        <span className="text-2xl leading-none">+</span>
-        <span className="text-sm tracking-wide">ADD MOMENT</span>
-      </button>
+      <AddMomentBtn onClick={() => setShowMomentModal(true)} />
 
-      {/* Moment Modal */}
-      {showMomentModal && <MomentModal onClose={() => setShowMomentModal(false)} onConfirm={handleMomentConfirm} />}
+      {showMomentModal && (
+        <MomentModal onClose={() => setShowMomentModal(false)} onConfirm={handleMomentConfirm} />
+      )}
 
-      {/* Skill History Modal */}
-      {selectedSkill && <SkillHistory skill={selectedSkill} onClose={() => setSelectedSkill(null)} />}
+      {selectedSkill && (
+        <SkillHistory skill={selectedSkill} onClose={() => setSelectedSkill(null)} />
+      )}
 
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
